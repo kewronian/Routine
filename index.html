@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f0f13">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Giornata">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>La Mia Giornata</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0f13;
+  --s1: #17171f;
+  --s2: #1e1e28;
+  --s3: #26263380;
+  --border: rgba(255,255,255,0.07);
+  --gold: #c8a96e;
+  --gold2: #e8c98e;
+  --teal: #6eb8a0;
+  --rose: #c87e8a;
+  --lavender: #9b8ec8;
+  --blue: #7e9ec8;
+  --text: #f0ede8;
+  --muted: #666680;
+  --muted2: #44445a;
+  --r: 14px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bot: env(safe-area-inset-bottom, 0px);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--s1);
+  border-bottom: 1px solid var(--border);
+  padding: calc(var(--safe-top) + 14px) 18px 14px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header-left h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  color: var(--gold);
+  letter-spacing: 0.3px;
+}
+.header-left .date {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+  text-transform: capitalize;
+}
+.week-pill {
+  background: var(--gold);
+  color: #0f0f13;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+/* ── PAGES CONTAINER ── */
+.pages {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+.page {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px 14px;
+  display: none;
+  -webkit-overflow-scrolling: touch;
+}
+.page.active { display: block; }
+
+/* ── NAV ── */
+.nav {
+  background: var(--s1);
+  border-top: 1px solid var(--border);
+  display: flex;
+  padding-bottom: var(--safe-bot);
+  flex-shrink: 0;
+}
+.nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 4px 8px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-family: 'Outfit', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s;
+  position: relative;
+}
+.nav-btn .nav-icon { font-size: 21px; line-height: 1; }
+.nav-btn.active { color: var(--gold); }
+.nav-btn.active::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 20%; right: 20%;
+  height: 2px;
+  background: var(--gold);
+  border-radius: 0 0 3px 3px;
+}
+
+/* ── SECTION TITLES ── */
+.stitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 19px;
+  color: var(--gold);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── CARDS ── */
+.card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px;
+  margin-bottom: 12px;
+}
+.card-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+/* ── INPUTS ── */
+.field {
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 13px;
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+.field:focus { border-color: var(--gold); }
+.field::placeholder { color: var(--muted); }
+.field option { background: #1e1e28; }
+
+.btn {
+  background: var(--gold);
+  color: #0f0f13;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 18px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+.btn:active { opacity: 0.75; }
+.btn.ghost {
+  background: var(--s2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-weight: 400;
+}
+.row { display: flex; gap: 8px; }
+
+/* ── MEAL ── */
+.meal-block { margin-bottom: 10px; }
+.meal-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.meal-label { font-size: 13px; font-weight: 600; color: var(--text); }
+.meal-time-badge {
+  font-size: 10px;
+  background: var(--s3);
+  border-radius: 8px;
+  padding: 2px 7px;
+  color: var(--muted);
+}
+.meal-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--s2);
+  border-radius: 8px;
+  padding: 8px 11px;
+  margin-bottom: 5px;
+  font-size: 13px;
+}
+.meal-entry .meal-time { font-size: 10px; color: var(--muted); margin-top: 2px; }
+.del-btn {
+  background: none; border: none;
+  color: var(--muted2); font-size: 16px;
+  cursor: pointer; padding: 2px 4px;
+  flex-shrink: 0;
+}
+.del-btn:hover { color: var(--rose); }
+.divider { height: 1px; background: var(--border); margin: 10px 0; }
+
+/* ── WATER ── */
+.water-hero {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.water-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 60px;
+  color: var(--teal);
+  line-height: 1;
+}
+.water-right { flex: 1; }
+.water-goal { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+.water-bar-bg {
+  height: 6px; background: var(--s2);
+  border-radius: 3px; overflow: hidden;
+  margin-bottom: 10px;
+}
+.water-bar-fill {
+  height: 100%; background: var(--teal);
+  border-radius: 3px; transition: width 0.4s ease;
+}
+.water-droplets {
+  display: flex; flex-wrap: wrap; gap: 5px;
+  margin-bottom: 14px;
+}
+.drop {
+  font-size: 24px;
+  opacity: 0.2;
+  cursor: pointer;
+  transition: opacity 0.25s, transform 0.15s;
+}
+.drop.on { opacity: 1; transform: scale(1.08); }
+.water-controls { display: flex; gap: 8px; }
+.count-btn {
+  width: 42px; height: 42px;
+  border-radius: 50%; border: none;
+  font-size: 22px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.1s;
+  font-family: 'Outfit', sans-serif;
+}
+.count-btn:active { transform: scale(0.88); }
+.count-btn.plus { background: var(--teal); color: #0f0f13; }
+.count-btn.minus { background: var(--s2); color: var(--muted); border: 1px solid var(--border); }
+
+/* ── WEEK TRACKER (gym/shower/shampoo) ── */
+.week-tracker { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+.wt-cell { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.wt-day { font-size: 9px; font-weight: 600; text-transform: uppercase; color: var(--muted); letter-spacing: 0.3px; }
+.wt-toggle {
+  width: 38px; height: 38px;
+  border-radius: 50%; border: 1.5px solid var(--border);
+  background: none; color: var(--muted);
+  font-size: 15px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.wt-toggle.gym-on  { background: var(--lavender); border-color: var(--lavender); color: #fff; }
+.wt-toggle.shower-on { background: var(--teal); border-color: var(--teal); color: #fff; }
+.wt-toggle.shampoo-on { background: var(--rose); border-color: var(--rose); color: #fff; }
+.tracker-footer { margin-top: 10px; font-size: 12px; color: var(--muted); }
+.tracker-footer b { color: var(--text); }
+
+/* ─────────────────────────────────────────
+   TASK CALENDAR (weekly grid)
+───────────────────────────────────────── */
+.week-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.week-nav-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  color: var(--gold);
+}
+.week-nav-btn {
+  background: var(--s2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* Horizontal scroll calendar */
+.cal-outer {
+  overflow-x: auto;
+  margin: 0 -14px;
+  padding: 0 14px;
+  -webkit-overflow-scrolling: touch;
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: 82px repeat(7, 1fr);
+  min-width: 580px;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  background: var(--s1);
+}
+.cal-head { display: contents; }
+.cal-head-cell {
+  background: var(--s2);
+  padding: 8px 4px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+.cal-head-cell:last-child { border-right: none; }
+.cal-head-cell.today-col { color: var(--gold); }
+.cal-head-cell .day-num { font-size: 14px; font-weight: 600; display: block; margin-top: 2px; }
+.cal-row { display: contents; }
+.cal-cat-cell {
+  background: var(--s2);
+  padding: 8px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 3px;
+}
+.cal-cat-cell .cat-icon { font-size: 14px; }
+.cal-day-cell {
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 4px;
+  min-height: 58px;
+  vertical-align: top;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.15s;
+}
+.cal-day-cell:last-child { border-right: none; }
+.cal-day-cell:hover { background: var(--s3); }
+.cal-day-cell.today-col { background: rgba(200,169,110,0.04); }
+.cal-row:last-child .cal-cat-cell,
+.cal-row:last-child .cal-day-cell { border-bottom: none; }
+
+/* task chips in calendar cells */
+.task-chip {
+  font-size: 10px;
+  padding: 3px 5px;
+  border-radius: 5px;
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  word-break: break-word;
+}
+.task-chip.done { opacity: 0.4; text-decoration: line-through; }
+.task-chip .chip-del {
+  background: none; border: none;
+  color: inherit; font-size: 9px;
+  cursor: pointer; opacity: 0; padding: 0;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.task-chip:hover .chip-del { opacity: 1; }
+.chip-lav { background: rgba(110,184,160,0.2); color: var(--teal); }
+.chip-pul { background: rgba(126,158,200,0.2); color: var(--blue); }
+.chip-spe { background: rgba(200,169,110,0.2); color: var(--gold); }
+.chip-alt { background: rgba(155,142,200,0.2); color: var(--lavender); }
+.chip-sos { background: rgba(200,126,138,0.2); color: var(--rose); }
+.add-chip {
+  font-size: 16px;
+  color: var(--muted2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.add-chip:hover { color: var(--gold); }
+
+/* Task add modal */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 200;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--s1);
+  border-radius: 20px 20px 0 0;
+  border: 1px solid var(--border);
+  border-bottom: none;
+  padding: 20px 18px calc(24px + var(--safe-bot));
+  width: 100%;
+  max-width: 480px;
+}
+.modal-handle {
+  width: 36px; height: 4px;
+  background: var(--s2);
+  border-radius: 2px;
+  margin: 0 auto 18px;
+}
+.modal h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  color: var(--gold);
+  margin-bottom: 14px;
+}
+.cat-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.cat-pill {
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--muted);
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.cat-pill.sel { font-weight: 600; }
+.cat-pill.sel.lav { background: rgba(110,184,160,0.25); border-color: var(--teal); color: var(--teal); }
+.cat-pill.sel.pul { background: rgba(126,158,200,0.25); border-color: var(--blue); color: var(--blue); }
+.cat-pill.sel.spe { background: rgba(200,169,110,0.25); border-color: var(--gold); color: var(--gold); }
+.cat-pill.sel.alt { background: rgba(155,142,200,0.25); border-color: var(--lavender); color: var(--lavender); }
+.cat-pill.sel.sos { background: rgba(200,126,138,0.25); border-color: var(--rose); color: var(--rose); }
+
+/* ── SPESE ── */
+.summary-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.sum-box {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 12px 10px;
+  text-align: center;
+}
+.sum-box .sv {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  color: var(--gold);
+}
+.sum-box .sl {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.exp-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+}
+.exp-item:last-child { border-bottom: none; }
+.exp-ico {
+  width: 38px; height: 38px;
+  border-radius: 11px;
+  background: var(--s2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.exp-meta { flex: 1; min-width: 0; }
+.exp-desc { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.exp-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+.exp-amt {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  color: var(--rose);
+  flex-shrink: 0;
+}
+
+/* ── UTILS ── */
+.empty { text-align: center; color: var(--muted); font-size: 13px; padding: 22px 0; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <h1>La Mia Giornata</h1>
+    <div class="date" id="hDate"></div>
+  </div>
+  <div class="week-pill" id="hWeek"></div>
+</div>
+
+<!-- PAGES -->
+<div class="pages">
+
+  <!-- ══ CIBO ══ -->
+  <div class="page active" id="page-cibo">
+
+    <div class="card">
+      <div class="card-label">☀️ Colazione</div>
+      <div class="row" style="margin-bottom:8px">
+        <input class="field" id="in-col" placeholder="Es. yogurt, cereali…" maxlength="80">
+        <button class="btn" onclick="addMeal('col')">+</button>
+      </div>
+      <div id="log-col"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">🌤️ Pranzo</div>
+      <div class="row" style="margin-bottom:8px">
+        <input class="field" id="in-pra" placeholder="Es. pasta al pomodoro…" maxlength="80">
+        <button class="btn" onclick="addMeal('pra')">+</button>
+      </div>
+      <div id="log-pra"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">🌙 Cena</div>
+      <div class="row" style="margin-bottom:8px">
+        <input class="field" id="in-cen" placeholder="Es. pollo, verdure…" maxlength="80">
+        <button class="btn" onclick="addMeal('cen')">+</button>
+      </div>
+      <div id="log-cen"></div>
+    </div>
+
+  </div>
+
+  <!-- ══ SALUTE ══ -->
+  <div class="page" id="page-salute">
+
+    <div class="card">
+      <div class="card-label">💧 Acqua giornaliera</div>
+      <div class="water-hero">
+        <div class="water-num" id="wNum">0</div>
+        <div class="water-right">
+          <div class="water-goal">Obiettivo: 8 bicchieri</div>
+          <div class="water-bar-bg"><div class="water-bar-fill" id="wBar" style="width:0%"></div></div>
+          <div style="font-size:11px;color:var(--muted)" id="wPct">0% raggiunto</div>
+        </div>
+      </div>
+      <div class="water-droplets" id="wDrops"></div>
+      <div class="water-controls">
+        <button class="count-btn plus" onclick="changeWater(1)">+</button>
+        <button class="count-btn minus" onclick="changeWater(-1)">−</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">💪 Palestra</div>
+      <div class="week-tracker" id="gymGrid"></div>
+      <div class="tracker-footer">Questa settimana: <b id="gymTot">0</b> allenamenti</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">🚿 Doccia</div>
+      <div class="week-tracker" id="showerGrid"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">🧴 Shampoo</div>
+      <div class="week-tracker" id="shampooGrid"></div>
+    </div>
+
+  </div>
+
+  <!-- ══ TASK CALENDARIO ══ -->
+  <div class="page" id="page-task">
+
+    <div class="week-nav">
+      <button class="week-nav-btn" onclick="changeWeek(-1)">‹</button>
+      <div class="week-nav-title" id="weekNavTitle"></div>
+      <button class="week-nav-btn" onclick="changeWeek(1)">›</button>
+    </div>
+
+    <div class="cal-outer">
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+
+    <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;">
+      <span style="font-size:10px;color:var(--muted);">Tocca una cella per aggiungere · Tocca il task per completare</span>
+    </div>
+
+  </div>
+
+  <!-- ══ SPESE ══ -->
+  <div class="page" id="page-spese">
+
+    <div class="summary-strip">
+      <div class="sum-box"><div class="sv" id="stot">£0</div><div class="sl">Totale</div></div>
+      <div class="sum-box"><div class="sv" id="smese">£0</div><div class="sl">Mese</div></div>
+      <div class="sum-box"><div class="sv" id="ssett">£0</div><div class="sl">Settimana</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Aggiungi spesa</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <input class="field" id="eDesc" placeholder="Descrizione (es. Tesco)" maxlength="60">
+        <div class="row">
+          <input class="field" id="eAmt" type="number" placeholder="£ Importo" min="0" step="0.01">
+          <select class="field" id="eCat" style="flex:0 0 auto;width:auto;">
+            <option value="cibo">🛒 Cibo</option>
+            <option value="trasporti">🚇 Trasporti</option>
+            <option value="casa">🏠 Casa</option>
+            <option value="salute">💊 Salute</option>
+            <option value="svago">🎮 Svago</option>
+            <option value="abbigliamento">👕 Vestiti</option>
+            <option value="moto">🏍️ Moto</option>
+            <option value="altro">📦 Altro</option>
+          </select>
+        </div>
+        <button class="btn" style="width:100%" onclick="addExpense()">Aggiungi</button>
+      </div>
+    </div>
+
+    <div class="card" id="expList"></div>
+
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" data-page="cibo" onclick="showPage(this)">
+    <span class="nav-icon">🍽️</span><span>Cibo</span>
+  </button>
+  <button class="nav-btn" data-page="salute" onclick="showPage(this)">
+    <span class="nav-icon">💧</span><span>Salute</span>
+  </button>
+  <button class="nav-btn" data-page="task" onclick="showPage(this)">
+    <span class="nav-icon">📅</span><span>Agenda</span>
+  </button>
+  <button class="nav-btn" data-page="spese" onclick="showPage(this)">
+    <span class="nav-icon">💸</span><span>Spese</span>
+  </button>
+</nav>
+
+<!-- TASK ADD MODAL -->
+<div class="modal-overlay" id="taskModal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3 id="modalTitle">Aggiungi Task</h3>
+    <div class="cat-pills" id="catPills"></div>
+    <div class="row" style="margin-top:4px">
+      <input class="field" id="taskText" placeholder="Descrivi il task…" maxlength="60">
+      <button class="btn" onclick="confirmTask()">+</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════
+   STATE
+════════════════════════════ */
+const STORAGE_KEY = 'giornata_v2';
+let S = load();
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultState(); }
+  catch { return defaultState(); }
+}
+function defaultState() {
+  return {
+    meals: { col:[], pra:[], cen:[] },
+    water: 0,
+    gym:     [false,false,false,false,false,false,false],
+    shower:  [false,false,false,false,false,false,false],
+    shampoo: [false,false,false,false,false,false,false],
+    tasks: [],   // { id, text, cat, day(YYYY-MM-DD), done }
+    expenses: [] // { id, desc, amount, cat, date(YYYY-MM-DD) }
+  };
+}
+function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(S)); }
+
+/* ════════════════════════════
+   HEADER
+════════════════════════════ */
+const TODAY = new Date();
+TODAY.setHours(0,0,0,0);
+
+function initHeader() {
+  const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+  document.getElementById('hDate').textContent = TODAY.toLocaleDateString('it-IT', opts);
+  const wk = Math.ceil(TODAY.getDate() / 7);
+  document.getElementById('hWeek').textContent = `Settimana ${wk}`;
+}
+
+/* ════════════════════════════
+   NAVIGATION
+════════════════════════════ */
+function showPage(btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + btn.dataset.page).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ════════════════════════════
+   MEALS
+════════════════════════════ */
+const MEAL_LABELS = { col:'Colazione', pra:'Pranzo', cen:'Cena' };
+
+function addMeal(key) {
+  const el = document.getElementById('in-' + key);
+  const v = el.value.trim();
+  if (!v) return;
+  S.meals[key].push({ v, t: nowTime() });
+  el.value = ''; save(); renderMeals();
+}
+function delMeal(key, i) { S.meals[key].splice(i, 1); save(); renderMeals(); }
+function renderMeals() {
+  ['col','pra','cen'].forEach(key => {
+    const el = document.getElementById('log-' + key);
+    const items = S.meals[key];
+    el.innerHTML = items.length ? items.map((it, i) =>
+      `<div class="meal-entry">
+        <div><div>${it.v}</div><div class="meal-time">${it.t}</div></div>
+        <button class="del-btn" onclick="delMeal('${key}',${i})">✕</button>
+      </div>`).join('') : '';
+  });
+}
+
+/* ════════════════════════════
+   WATER
+════════════════════════════ */
+function changeWater(d) {
+  S.water = Math.max(0, Math.min(12, S.water + d));
+  save(); renderWater();
+}
+function renderWater() {
+  document.getElementById('wNum').textContent = S.water;
+  const pct = Math.min(100, Math.round(S.water / 8 * 100));
+  document.getElementById('wBar').style.width = pct + '%';
+  document.getElementById('wPct').textContent = pct + '% raggiunto';
+  let h = '';
+  for (let i = 0; i < 12; i++)
+    h += `<span class="drop ${i < S.water ? 'on' : ''}" onclick="changeWater(${i < S.water ? -1 : 1})">💧</span>`;
+  document.getElementById('wDrops').innerHTML = h;
+}
+
+/* ════════════════════════════
+   WEEK GRIDS (gym/shower/shampoo)
+════════════════════════════ */
+const DAYS = ['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
+function renderGrids() {
+  renderGrid('gymGrid',    'gym',     'gym-on',     '🏋️');
+  renderGrid('showerGrid', 'shower',  'shower-on',  '🚿');
+  renderGrid('shampooGrid','shampoo', 'shampoo-on', '🧴');
+  document.getElementById('gymTot').textContent = S.gym.filter(Boolean).length;
+}
+function renderGrid(id, key, cls, icon) {
+  document.getElementById(id).innerHTML = DAYS.map((d,i) =>
+    `<div class="wt-cell">
+      <span class="wt-day">${d}</span>
+      <button class="wt-toggle ${S[key][i] ? cls : ''}" onclick="toggleDay('${key}',${i})">${S[key][i] ? icon : ''}</button>
+    </div>`).join('');
+}
+function toggleDay(key, i) { S[key][i] = !S[key][i]; save(); renderGrids(); }
+
+/* ════════════════════════════
+   TASK CALENDAR
+════════════════════════════ */
+const CATS = [
+  { key:'lav', label:'Lavanderia', icon:'👕', cls:'chip-lav' },
+  { key:'pul', label:'Pulizie',    icon:'🧹', cls:'chip-pul' },
+  { key:'spe', label:'Spesa',      icon:'🛒', cls:'chip-spe' },
+  { key:'sos', label:'Servizi',    icon:'🔧', cls:'chip-sos' },
+  { key:'alt', label:'Altro',      icon:'📦', cls:'chip-alt' },
+];
+let calWeekOffset = 0;  // 0 = current week
+let modalDay = null, modalCat = null;
+
+function getWeekStart(offset = 0) {
+  const d = new Date(TODAY);
+  const dow = d.getDay() === 0 ? 6 : d.getDay() - 1; // Mon=0
+  d.setDate(d.getDate() - dow + offset * 7);
+  return d;
+}
+function dateStr(d) {
+  return d.toISOString().slice(0,10);
+}
+function addDays(d, n) {
+  const r = new Date(d);
+  r.setDate(r.getDate() + n);
+  return r;
+}
+function fmtShort(d) {
+  return d.toLocaleDateString('it-IT', { day:'numeric', month:'short' });
+}
+function changeWeek(dir) { calWeekOffset += dir; renderCal(); }
+
+function renderCal() {
+  const ws = getWeekStart(calWeekOffset);
+  const we = addDays(ws, 6);
+  document.getElementById('weekNavTitle').textContent =
+    fmtShort(ws) + ' – ' + fmtShort(we);
+
+  const days = Array.from({length:7}, (_,i) => addDays(ws, i));
+  const todayStr = dateStr(TODAY);
+
+  let html = '';
+
+  // Header row: corner + day headers
+  html += `<div class="cal-head-cell" style="background:var(--s2)"></div>`;
+  days.forEach((d, i) => {
+    const ds = dateStr(d);
+    const isToday = ds === todayStr;
+    const dayNames = ['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
+    html += `<div class="cal-head-cell ${isToday ? 'today-col' : ''}">
+      ${dayNames[i]}<span class="day-num">${d.getDate()}</span>
+    </div>`;
+  });
+
+  // Category rows
+  CATS.forEach(cat => {
+    html += `<div class="cal-cat-cell">
+      <span class="cat-icon">${cat.icon}</span>
+      <span>${cat.label}</span>
+    </div>`;
+    days.forEach(d => {
+      const ds = dateStr(d);
+      const isToday = ds === todayStr;
+      const cellTasks = S.tasks.filter(t => t.day === ds && t.cat === cat.key);
+      html += `<div class="cal-day-cell ${isToday ? 'today-col' : ''}" onclick="openModal('${ds}','${cat.key}',event)">`;
+      cellTasks.forEach(t => {
+        html += `<div class="task-chip ${cat.cls} ${t.done ? 'done' : ''}"
+          onclick="toggleTask(${t.id},event)">
+          <span>${t.text}</span>
+          <button class="chip-del" onclick="delTask(${t.id},event)">✕</button>
+        </div>`;
+      });
+      html += `<div class="add-chip">＋</div></div>`;
+    });
+  });
+
+  document.getElementById('calGrid').innerHTML = html;
+}
+
+function openModal(day, cat, e) {
+  e.stopPropagation();
+  modalDay = day; modalCat = cat;
+  const d = new Date(day + 'T00:00:00');
+  const catObj = CATS.find(c => c.key === cat);
+  document.getElementById('modalTitle').textContent =
+    `${catObj.icon} ${catObj.label} — ${d.toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'})}`;
+  // pills
+  document.getElementById('catPills').innerHTML = CATS.map(c =>
+    `<button class="cat-pill ${c.key} ${c.key===cat ? 'sel '+c.key : ''}" onclick="selectModalCat('${c.key}',this)">
+      ${c.icon} ${c.label}
+    </button>`).join('');
+  document.getElementById('taskText').value = '';
+  document.getElementById('taskModal').classList.add('open');
+  setTimeout(() => document.getElementById('taskText').focus(), 200);
+}
+
+function selectModalCat(key, btn) {
+  modalCat = key;
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('sel','lav','pul','spe','sos','alt'));
+  btn.classList.add('sel', key);
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('taskModal') || !e)
+    document.getElementById('taskModal').classList.remove('open');
+}
+
+function confirmTask() {
+  const text = document.getElementById('taskText').value.trim();
+  if (!text || !modalDay || !modalCat) return;
+  S.tasks.push({ id: Date.now(), text, cat: modalCat, day: modalDay, done: false });
+  document.getElementById('taskModal').classList.remove('open');
+  save(); renderCal();
+}
+
+function toggleTask(id, e) {
+  e.stopPropagation();
+  const t = S.tasks.find(t => t.id === id);
+  if (t) t.done = !t.done;
+  save(); renderCal();
+}
+
+function delTask(id, e) {
+  e.stopPropagation();
+  S.tasks = S.tasks.filter(t => t.id !== id);
+  save(); renderCal();
+}
+
+/* ════════════════════════════
+   EXPENSES
+════════════════════════════ */
+const EXP_ICONS = { cibo:'🛒', trasporti:'🚇', casa:'🏠', salute:'💊', svago:'🎮', abbigliamento:'👕', moto:'🏍️', altro:'📦' };
+const EXP_NAMES = { cibo:'Cibo', trasporti:'Trasporti', casa:'Casa', salute:'Salute', svago:'Svago', abbigliamento:'Vestiti', moto:'Moto', altro:'Altro' };
+
+function addExpense() {
+  const desc = document.getElementById('eDesc').value.trim();
+  const amt = parseFloat(document.getElementById('eAmt').value);
+  const cat = document.getElementById('eCat').value;
+  if (!desc || isNaN(amt) || amt <= 0) return;
+  S.expenses.unshift({ id: Date.now(), desc, amount: amt, cat, date: dateStr(TODAY) });
+  document.getElementById('eDesc').value = '';
+  document.getElementById('eAmt').value = '';
+  save(); renderExpenses();
+}
+function delExpense(id) { S.expenses = S.expenses.filter(e => e.id !== id); save(); renderExpenses(); }
+
+function renderExpenses() {
+  const now = TODAY;
+  const ws = getWeekStart(0);
+  const ms = new Date(now.getFullYear(), now.getMonth(), 1);
+  let tot=0, mese=0, sett=0;
+  S.expenses.forEach(e => {
+    const d = new Date(e.date);
+    tot += e.amount;
+    if (d >= ms) mese += e.amount;
+    if (d >= ws) sett += e.amount;
+  });
+  document.getElementById('stot').textContent = '£' + tot.toFixed(2);
+  document.getElementById('smese').textContent = '£' + mese.toFixed(2);
+  document.getElementById('ssett').textContent = '£' + sett.toFixed(2);
+
+  const el = document.getElementById('expList');
+  if (!S.expenses.length) { el.innerHTML = '<div class="empty">Nessuna spesa ancora 💰</div>'; return; }
+  el.innerHTML = S.expenses.slice(0, 40).map(e =>
+    `<div class="exp-item">
+      <div class="exp-ico">${EXP_ICONS[e.cat]||'📦'}</div>
+      <div class="exp-meta">
+        <div class="exp-desc">${e.desc}</div>
+        <div class="exp-sub">${EXP_NAMES[e.cat]} · ${new Date(e.date).toLocaleDateString('it-IT')}</div>
+      </div>
+      <div class="exp-amt">£${parseFloat(e.amount).toFixed(2)}</div>
+      <button class="del-btn" onclick="delExpense(${e.id})">✕</button>
+    </div>`).join('');
+}
+
+/* ════════════════════════════
+   UTILS
+════════════════════════════ */
+function nowTime() {
+  return new Date().toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' });
+}
+
+/* ════════════════════════════
+   KEYBOARD
+════════════════════════════ */
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const id = document.activeElement?.id;
+  if (id === 'in-col') addMeal('col');
+  else if (id === 'in-pra') addMeal('pra');
+  else if (id === 'in-cen') addMeal('cen');
+  else if (id === 'eDesc' || id === 'eAmt') addExpense();
+  else if (id === 'taskText') confirmTask();
+});
+
+/* ════════════════════════════
+   SERVICE WORKER
+════════════════════════════ */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+
+/* ════════════════════════════
+   INIT
+════════════════════════════ */
+initHeader();
+renderMeals();
+renderWater();
+renderGrids();
+renderCal();
+renderExpenses();
+</script>
+</body>
+</html>
