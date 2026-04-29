@@ -419,7 +419,7 @@ body {
   font-weight: 600;
 }
 
-/* ── WEEK TRACKER (gym/shower/shampoo) ── */
+/* ── WEEK TRACKER (gym/shower/shampoo & tasks) ── */
 .week-tracker { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
 .wt-cell { display: flex; flex-direction: column; align-items: center; gap: 5px; }
 .wt-day { font-size: 9px; font-weight: 600; text-transform: uppercase; color: var(--muted); letter-spacing: 0.3px; }
@@ -434,6 +434,9 @@ body {
 .wt-toggle.gym-on  { background: var(--lavender); border-color: var(--lavender); color: #fff; }
 .wt-toggle.shower-on { background: var(--teal); border-color: var(--teal); color: #fff; }
 .wt-toggle.shampoo-on { background: var(--rose); border-color: var(--rose); color: #fff; }
+.wt-toggle.lav-on { background: var(--gold); border-color: var(--gold); color: #0f0f13; }
+.wt-toggle.pul-on { background: var(--blue); border-color: var(--blue); color: #fff; }
+.wt-toggle.spe-on { background: var(--teal); border-color: var(--teal); color: #fff; }
 .tracker-footer { margin-top: 10px; font-size: 12px; color: var(--muted); }
 .tracker-footer b { color: var(--text); }
 
@@ -551,11 +554,11 @@ body {
   flex-shrink: 0;
 }
 .task-chip:hover .chip-del { opacity: 1; }
-.chip-lav { background: rgba(110,184,160,0.2); color: var(--teal); }
+.chip-lav { background: rgba(200,169,110,0.2); color: var(--gold); }
 .chip-pul { background: rgba(126,158,200,0.2); color: var(--blue); }
-.chip-spe { background: rgba(200,169,110,0.2); color: var(--gold); }
-.chip-alt { background: rgba(155,142,200,0.2); color: var(--lavender); }
-.chip-sos { background: rgba(200,126,138,0.2); color: var(--rose); }
+.chip-spe { background: rgba(110,184,160,0.2); color: var(--teal); }
+.chip-sos { background: rgba(155,142,200,0.2); color: var(--lavender); }
+.chip-alt { background: rgba(200,126,138,0.2); color: var(--rose); }
 .add-chip {
   font-size: 16px;
   color: var(--muted2);
@@ -612,11 +615,8 @@ body {
   transition: all 0.18s;
 }
 .cat-pill.sel { font-weight: 600; }
-.cat-pill.sel.lav { background: rgba(110,184,160,0.25); border-color: var(--teal); color: var(--teal); }
-.cat-pill.sel.pul { background: rgba(126,158,200,0.25); border-color: var(--blue); color: var(--blue); }
-.cat-pill.sel.spe { background: rgba(200,169,110,0.25); border-color: var(--gold); color: var(--gold); }
-.cat-pill.sel.alt { background: rgba(155,142,200,0.25); border-color: var(--lavender); color: var(--lavender); }
-.cat-pill.sel.sos { background: rgba(200,126,138,0.25); border-color: var(--rose); color: var(--rose); }
+.cat-pill.sel.sos { background: rgba(155,142,200,0.25); border-color: var(--lavender); color: var(--lavender); }
+.cat-pill.sel.alt { background: rgba(200,126,138,0.25); border-color: var(--rose); color: var(--rose); }
 
 /* ── MEAL MODAL ── */
 .meal-modal-overlay {
@@ -803,20 +803,40 @@ body {
 
   </div>
 
-  <!-- ══ TASK CALENDARIO ══ -->
+  <!-- ══ AGENDA ══ -->
   <div class="page" id="page-task">
 
-    <div class="week-nav">
-      <button class="week-nav-btn" onclick="changeWeek(-1)">‹</button>
-      <div class="week-nav-title" id="weekNavTitle"></div>
-      <button class="week-nav-btn" onclick="changeWeek(1)">›</button>
+    <div class="card">
+      <div class="card-label">👕 Lavanderia</div>
+      <div class="week-tracker" id="lavGrid"></div>
+      <div class="tracker-footer">Questa settimana: <b id="lavTot">0</b> volte</div>
     </div>
 
-    <div class="cal-outer">
-      <div class="cal-grid" id="calGrid"></div>
+    <div class="card">
+      <div class="card-label">🧹 Pulizie</div>
+      <div class="week-tracker" id="pulGrid"></div>
+      <div class="tracker-footer">Questa settimana: <b id="pulTot">0</b> volte</div>
     </div>
 
-    <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;">
+    <div class="card">
+      <div class="card-label">🛒 Spesa</div>
+      <div class="week-tracker" id="speGrid"></div>
+      <div class="tracker-footer">Questa settimana: <b id="speTot">0</b> volte</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">🔧 Servizi</div>
+      <div class="week-nav">
+        <button class="week-nav-btn" onclick="changeWeek(-1)">‹</button>
+        <div class="week-nav-title" id="weekNavTitle"></div>
+        <button class="week-nav-btn" onclick="changeWeek(1)">›</button>
+      </div>
+      <div class="cal-outer">
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+    </div>
+
+    <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;padding:0 14px;">
       <span style="font-size:10px;color:var(--muted);">Tocca una cella per aggiungere · Tocca il task per completare</span>
     </div>
 
@@ -873,7 +893,7 @@ body {
   </button>
 </nav>
 
-<!-- TASK ADD MODAL -->
+<!-- TASK ADD MODAL (per Servizi & Altro) -->
 <div class="modal-overlay" id="taskModal" onclick="closeModal(event)">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -919,14 +939,17 @@ function load() {
 function defaultState() {
   return {
     meals: { col:[], pra:[], cen:[] },
-    mealHistory: {}, // { 'YYYY-MM-DD': { col:[], pra:[], cen:[] } }
+    mealHistory: {},
     water: 0,
-    waterHistory: {}, // { 'YYYY-MM-DD': number }
+    waterHistory: {},
     gym:     [false,false,false,false,false,false,false],
     shower:  [false,false,false,false,false,false,false],
     shampoo: [false,false,false,false,false,false,false],
-    tasks: [],   // { id, text, cat, day(YYYY-MM-DD), done }
-    expenses: [] // { id, desc, amount, cat, date(YYYY-MM-DD) }
+    lav:     [false,false,false,false,false,false,false],
+    pul:     [false,false,false,false,false,false,false],
+    spe:     [false,false,false,false,false,false,false],
+    tasks: [],
+    expenses: []
   };
 }
 function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(S)); }
@@ -953,15 +976,12 @@ function checkAndReset() {
   const todayStr = dateStr(now);
   
   if (lastReset !== todayStr) {
-    // Archive today's water data
     const waterToday = S.water;
     if (!S.waterHistory) S.waterHistory = {};
     S.waterHistory[todayStr] = waterToday;
     
-    // Reset water for new day
     S.water = 0;
     
-    // Update reset marker
     localStorage.setItem('lastWaterReset', todayStr);
     save();
   }
@@ -971,13 +991,11 @@ function scheduleReset() {
   function checkReset() {
     const now = new Date();
     const hour = now.getHours();
-    if (hour === 3 || hour === 4) { // Check between 3-4 AM
+    if (hour === 3 || hour === 4) {
       checkAndReset();
     }
   }
-  // Check every minute
   setInterval(checkReset, 60000);
-  // Also check immediately
   checkReset();
 }
 
@@ -1033,7 +1051,6 @@ function renderMealCal() {
 
   let html = '';
 
-  // Header row
   html += `<div class="meal-cal-head-cell" style="background:var(--s2)"></div>`;
   days.forEach((d, i) => {
     const ds = dateStr(d);
@@ -1044,7 +1061,6 @@ function renderMealCal() {
     </div>`;
   });
 
-  // Meal type rows
   MEAL_TYPES.forEach(mt => {
     html += `<div class="meal-cal-cat-cell">
       <span class="cat-icon">${mt.icon}</span>
@@ -1054,13 +1070,10 @@ function renderMealCal() {
       const ds = dateStr(d);
       const isToday = ds === todayStr;
       
-      // Get meals for this day and type
       let meals = [];
       if (ds === todayStr) {
-        // Today: use current data
         meals = S.meals[mt.key] || [];
       } else {
-        // Past days: use history
         const hist = S.mealHistory && S.mealHistory[ds] ? S.mealHistory[ds][mt.key] : [];
         meals = hist || [];
       }
@@ -1088,7 +1101,6 @@ function openMealModal(day, type, e) {
   document.getElementById('mealModalTitle').textContent =
     `${typeObj} — ${d.toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'})}`;
   
-  // Populate list
   let meals = [];
   if (day === dateStr(TODAY)) {
     meals = S.meals[type] || [];
@@ -1123,10 +1135,8 @@ function confirmMealModal() {
   const meal = { v: text, t: nowTime() };
   
   if (mealModalDay === dateStr(TODAY)) {
-    // Add to current meals
     S.meals[mealModalType].push(meal);
   } else {
-    // Add to history
     if (!S.mealHistory) S.mealHistory = {};
     if (!S.mealHistory[mealModalDay]) {
       S.mealHistory[mealModalDay] = { col:[], pra:[], cen:[] };
@@ -1214,14 +1224,21 @@ function renderWaterHistory() {
 }
 
 /* ════════════════════════════
-   WEEK GRIDS (gym/shower/shampoo)
+   WEEK GRIDS (gym/shower/shampoo & tasks)
 ════════════════════════════ */
 const DAYS = ['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
 function renderGrids() {
   renderGrid('gymGrid',    'gym',     'gym-on',     '🏋️');
   renderGrid('showerGrid', 'shower',  'shower-on',  '🚿');
   renderGrid('shampooGrid','shampoo', 'shampoo-on', '🧴');
+  renderGrid('lavGrid',    'lav',     'lav-on',     '👕');
+  renderGrid('pulGrid',    'pul',     'pul-on',     '🧹');
+  renderGrid('speGrid',    'spe',     'spe-on',     '🛒');
+  
   document.getElementById('gymTot').textContent = S.gym.filter(Boolean).length;
+  document.getElementById('lavTot').textContent = S.lav.filter(Boolean).length;
+  document.getElementById('pulTot').textContent = S.pul.filter(Boolean).length;
+  document.getElementById('speTot').textContent = S.spe.filter(Boolean).length;
 }
 function renderGrid(id, key, cls, icon) {
   document.getElementById(id).innerHTML = DAYS.map((d,i) =>
@@ -1233,14 +1250,11 @@ function renderGrid(id, key, cls, icon) {
 function toggleDay(key, i) { S[key][i] = !S[key][i]; save(); renderGrids(); }
 
 /* ════════════════════════════
-   TASK CALENDAR
+   TASK CALENDAR (Servizi & Altro)
 ════════════════════════════ */
 const CATS = [
-  { key:'lav', label:'Lavanderia', icon:'👕', cls:'chip-lav' },
-  { key:'pul', label:'Pulizie',    icon:'🧹', cls:'chip-pul' },
-  { key:'spe', label:'Spesa',      icon:'🛒', cls:'chip-spe' },
-  { key:'sos', label:'Servizi',    icon:'🔧', cls:'chip-sos' },
-  { key:'alt', label:'Altro',      icon:'📦', cls:'chip-alt' },
+  { key:'sos', label:'Servizi', icon:'🔧', cls:'chip-sos' },
+  { key:'alt', label:'Altro',   icon:'📦', cls:'chip-alt' },
 ];
 let calWeekOffset = 0;
 let modalDay = null, modalCat = null;
@@ -1327,7 +1341,7 @@ function openModal(day, cat, e) {
 
 function selectModalCat(key, btn) {
   modalCat = key;
-  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('sel','lav','pul','spe','sos','alt'));
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('sel','sos','alt'));
   btn.classList.add('sel', key);
 }
 
