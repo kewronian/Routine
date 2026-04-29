@@ -225,6 +225,113 @@ body {
 .del-btn:hover { color: var(--rose); }
 .divider { height: 1px; background: var(--border); margin: 10px 0; }
 
+/* ── MEAL CALENDAR ── */
+.meal-cal-outer {
+  overflow-x: auto;
+  margin: 0 -14px;
+  padding: 0 14px;
+  -webkit-overflow-scrolling: touch;
+}
+.meal-cal-grid {
+  display: grid;
+  grid-template-columns: 90px repeat(7, 1fr);
+  min-width: 650px;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  background: var(--s1);
+}
+.meal-cal-head { display: contents; }
+.meal-cal-head-cell {
+  background: var(--s2);
+  padding: 12px 6px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  color: var(--muted);
+}
+.meal-cal-head-cell:last-child { border-right: none; }
+.meal-cal-head-cell.today-col { color: var(--gold); background: rgba(200,169,110,0.08); }
+.meal-cal-head-cell .day-num { font-size: 16px; font-weight: 600; display: block; margin-top: 3px; color: var(--text); }
+.meal-cal-row { display: contents; }
+.meal-cal-cat-cell {
+  background: var(--s2);
+  padding: 10px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+.meal-cal-cat-cell .cat-icon { font-size: 18px; }
+.meal-cal-day-cell {
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 4px;
+  min-height: 90px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.meal-cal-day-cell:last-child { border-right: none; }
+.meal-cal-day-cell:hover { background: var(--s3); }
+.meal-cal-day-cell.today-col { background: rgba(200,169,110,0.04); }
+.meal-cal-row:last-child .meal-cal-cat-cell,
+.meal-cal-row:last-child .meal-cal-day-cell { border-bottom: none; }
+
+.meal-chip {
+  font-size: 11px;
+  padding: 5px 6px;
+  border-radius: 6px;
+  background: rgba(110,184,160,0.2);
+  color: var(--teal);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  word-break: break-word;
+  white-space: normal;
+  flex-wrap: wrap;
+}
+.meal-chip .chip-del {
+  background: none; border: none;
+  color: inherit; font-size: 10px;
+  cursor: pointer; opacity: 0; padding: 0;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.meal-chip:hover .chip-del { opacity: 1; }
+.meal-add-btn {
+  font-size: 18px;
+  color: var(--muted2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.15s;
+  margin-top: auto;
+}
+.meal-add-btn:hover { color: var(--gold); }
+
 /* ── WATER ── */
 .water-hero {
   display: flex;
@@ -272,6 +379,45 @@ body {
 .count-btn:active { transform: scale(0.88); }
 .count-btn.plus { background: var(--teal); color: #0f0f13; }
 .count-btn.minus { background: var(--s2); color: var(--muted); border: 1px solid var(--border); }
+
+/* ── WATER HISTORY ── */
+.water-history {
+  margin-top: 16px;
+}
+.water-history-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.water-history-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.water-history-day {
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 6px;
+  text-align: center;
+  font-size: 11px;
+}
+.water-history-day .day-label {
+  color: var(--muted);
+  font-size: 9px;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.water-history-day .day-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  color: var(--teal);
+  font-weight: 600;
+}
 
 /* ── WEEK TRACKER (gym/shower/shampoo) ── */
 .week-tracker { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
@@ -472,6 +618,38 @@ body {
 .cat-pill.sel.alt { background: rgba(155,142,200,0.25); border-color: var(--lavender); color: var(--lavender); }
 .cat-pill.sel.sos { background: rgba(200,126,138,0.25); border-color: var(--rose); color: var(--rose); }
 
+/* ── MEAL MODAL ── */
+.meal-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 200;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+}
+.meal-modal-overlay.open { display: flex; }
+.meal-modal {
+  background: var(--s1);
+  border-radius: 20px 20px 0 0;
+  border: 1px solid var(--border);
+  border-bottom: none;
+  padding: 20px 18px calc(24px + var(--safe-bot));
+  width: 100%;
+  max-width: 480px;
+}
+.meal-modal-handle {
+  width: 36px; height: 4px;
+  background: var(--s2);
+  border-radius: 2px;
+  margin: 0 auto 18px;
+}
+.meal-modal h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  color: var(--gold);
+  margin-bottom: 14px;
+}
+
 /* ── SPESE ── */
 .summary-strip {
   display: grid;
@@ -572,6 +750,14 @@ body {
       <div id="log-cen"></div>
     </div>
 
+    <!-- MEAL CALENDAR -->
+    <div class="card">
+      <div class="card-label">📅 Calendario pasti settimanale</div>
+      <div class="meal-cal-outer">
+        <div class="meal-cal-grid" id="mealCalGrid"></div>
+      </div>
+    </div>
+
   </div>
 
   <!-- ══ SALUTE ══ -->
@@ -591,6 +777,11 @@ body {
       <div class="water-controls">
         <button class="count-btn plus" onclick="changeWater(1)">+</button>
         <button class="count-btn minus" onclick="changeWater(-1)">−</button>
+      </div>
+      
+      <div class="water-history">
+        <div class="water-history-title">Ultimi 7 giorni</div>
+        <div class="water-history-grid" id="waterHistory"></div>
       </div>
     </div>
 
@@ -695,11 +886,30 @@ body {
   </div>
 </div>
 
+<!-- MEAL CALENDAR MODAL -->
+<div class="meal-modal-overlay" id="mealModal" onclick="closeMealModal(event)">
+  <div class="meal-modal">
+    <div class="meal-modal-handle"></div>
+    <h3 id="mealModalTitle">Pasti di oggi</h3>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Seleziona il tipo di pasto:</div>
+      <div class="row" style="margin-bottom:8px;gap:6px;flex-wrap:wrap;">
+        <button class="btn ghost" style="flex:1;min-width:80px;" onclick="selectMealType('col')">☀️ Colazione</button>
+        <button class="btn ghost" style="flex:1;min-width:80px;" onclick="selectMealType('pra')">🌤️ Pranzo</button>
+        <button class="btn ghost" style="flex:1;min-width:80px;" onclick="selectMealType('cen')">🌙 Cena</button>
+      </div>
+      <input class="field" id="mealInputText" placeholder="Es. pasta al ragù, pane, acqua…" maxlength="100">
+      <button class="btn" style="width:100%" onclick="confirmMealModal()">Aggiungi</button>
+    </div>
+    <div id="mealModalList" style="margin-top:16px;"></div>
+  </div>
+</div>
+
 <script>
 /* ════════════════════════════
    STATE
 ════════════════════════════ */
-const STORAGE_KEY = 'giornata_v2';
+const STORAGE_KEY = 'giornata_v3';
 let S = load();
 
 function load() {
@@ -709,7 +919,9 @@ function load() {
 function defaultState() {
   return {
     meals: { col:[], pra:[], cen:[] },
+    mealHistory: {}, // { 'YYYY-MM-DD': { col:[], pra:[], cen:[] } }
     water: 0,
+    waterHistory: {}, // { 'YYYY-MM-DD': number }
     gym:     [false,false,false,false,false,false,false],
     shower:  [false,false,false,false,false,false,false],
     shampoo: [false,false,false,false,false,false,false],
@@ -730,6 +942,43 @@ function initHeader() {
   document.getElementById('hDate').textContent = TODAY.toLocaleDateString('it-IT', opts);
   const wk = Math.ceil(TODAY.getDate() / 7);
   document.getElementById('hWeek').textContent = `Settimana ${wk}`;
+}
+
+/* ════════════════════════════
+   DAILY RESET (3 AM)
+════════════════════════════ */
+function checkAndReset() {
+  const lastReset = localStorage.getItem('lastWaterReset');
+  const now = new Date();
+  const todayStr = dateStr(now);
+  
+  if (lastReset !== todayStr) {
+    // Archive today's water data
+    const waterToday = S.water;
+    if (!S.waterHistory) S.waterHistory = {};
+    S.waterHistory[todayStr] = waterToday;
+    
+    // Reset water for new day
+    S.water = 0;
+    
+    // Update reset marker
+    localStorage.setItem('lastWaterReset', todayStr);
+    save();
+  }
+}
+
+function scheduleReset() {
+  function checkReset() {
+    const now = new Date();
+    const hour = now.getHours();
+    if (hour === 3 || hour === 4) { // Check between 3-4 AM
+      checkAndReset();
+    }
+  }
+  // Check every minute
+  setInterval(checkReset, 60000);
+  // Also check immediately
+  checkReset();
 }
 
 /* ════════════════════════════
@@ -768,6 +1017,162 @@ function renderMeals() {
 }
 
 /* ════════════════════════════
+   MEAL CALENDAR
+════════════════════════════ */
+let mealModalDay = null, mealModalType = null;
+
+function renderMealCal() {
+  const ws = getWeekStart(0);
+  const days = Array.from({length:7}, (_,i) => addDays(ws, i));
+  const todayStr = dateStr(TODAY);
+  const MEAL_TYPES = [
+    { key:'col', label:'☀️ Col', icon:'☀️' },
+    { key:'pra', label:'🌤️ Pra', icon:'🌤️' },
+    { key:'cen', label:'🌙 Cena', icon:'🌙' }
+  ];
+
+  let html = '';
+
+  // Header row
+  html += `<div class="meal-cal-head-cell" style="background:var(--s2)"></div>`;
+  days.forEach((d, i) => {
+    const ds = dateStr(d);
+    const isToday = ds === todayStr;
+    const dayNames = ['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
+    html += `<div class="meal-cal-head-cell ${isToday ? 'today-col' : ''}">
+      ${dayNames[i]}<span class="day-num">${d.getDate()}</span>
+    </div>`;
+  });
+
+  // Meal type rows
+  MEAL_TYPES.forEach(mt => {
+    html += `<div class="meal-cal-cat-cell">
+      <span class="cat-icon">${mt.icon}</span>
+      <span>${mt.label}</span>
+    </div>`;
+    days.forEach(d => {
+      const ds = dateStr(d);
+      const isToday = ds === todayStr;
+      
+      // Get meals for this day and type
+      let meals = [];
+      if (ds === todayStr) {
+        // Today: use current data
+        meals = S.meals[mt.key] || [];
+      } else {
+        // Past days: use history
+        const hist = S.mealHistory && S.mealHistory[ds] ? S.mealHistory[ds][mt.key] : [];
+        meals = hist || [];
+      }
+
+      html += `<div class="meal-cal-day-cell ${isToday ? 'today-col' : ''}" onclick="openMealModal('${ds}','${mt.key}',event)">`;
+      meals.forEach((meal, idx) => {
+        html += `<div class="meal-chip">
+          <span>${meal.v}</span>
+          <button class="chip-del" onclick="delMealFromCal('${ds}','${mt.key}',${idx},event)">✕</button>
+        </div>`;
+      });
+      html += `<div class="meal-add-btn">＋</div></div>`;
+    });
+  });
+
+  document.getElementById('mealCalGrid').innerHTML = html;
+}
+
+function openMealModal(day, type, e) {
+  e.stopPropagation();
+  mealModalDay = day;
+  mealModalType = type;
+  const d = new Date(day + 'T00:00:00');
+  const typeObj = { col:'☀️ Colazione', pra:'🌤️ Pranzo', cen:'🌙 Cena' }[type];
+  document.getElementById('mealModalTitle').textContent =
+    `${typeObj} — ${d.toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'})}`;
+  
+  // Populate list
+  let meals = [];
+  if (day === dateStr(TODAY)) {
+    meals = S.meals[type] || [];
+  } else {
+    const hist = S.mealHistory && S.mealHistory[day] ? S.mealHistory[day][type] : [];
+    meals = hist || [];
+  }
+  
+  const listEl = document.getElementById('mealModalList');
+  if (meals.length) {
+    listEl.innerHTML = meals.map((meal, idx) =>
+      `<div class="meal-entry" style="margin-bottom:6px;">
+        <div><div>${meal.v}</div><div class="meal-time">${meal.t || '—'}</div></div>
+        <button class="del-btn" onclick="delMealFromModal('${mealModalDay}','${mealModalType}',${idx})">✕</button>
+      </div>`).join('');
+  } else {
+    listEl.innerHTML = '<div class="empty">Nessun pasto ancora</div>';
+  }
+  
+  document.getElementById('mealInputText').value = '';
+  document.getElementById('mealModal').classList.add('open');
+}
+
+function selectMealType(type) {
+  mealModalType = type;
+}
+
+function confirmMealModal() {
+  const text = document.getElementById('mealInputText').value.trim();
+  if (!text || !mealModalDay || !mealModalType) return;
+  
+  const meal = { v: text, t: nowTime() };
+  
+  if (mealModalDay === dateStr(TODAY)) {
+    // Add to current meals
+    S.meals[mealModalType].push(meal);
+  } else {
+    // Add to history
+    if (!S.mealHistory) S.mealHistory = {};
+    if (!S.mealHistory[mealModalDay]) {
+      S.mealHistory[mealModalDay] = { col:[], pra:[], cen:[] };
+    }
+    S.mealHistory[mealModalDay][mealModalType].push(meal);
+  }
+  
+  save();
+  closeMealModal();
+  renderMealCal();
+  renderMeals();
+}
+
+function delMealFromCal(day, type, idx, e) {
+  e.stopPropagation();
+  if (day === dateStr(TODAY)) {
+    S.meals[type].splice(idx, 1);
+  } else {
+    if (S.mealHistory && S.mealHistory[day]) {
+      S.mealHistory[day][type].splice(idx, 1);
+    }
+  }
+  save();
+  renderMealCal();
+  renderMeals();
+}
+
+function delMealFromModal(day, type, idx) {
+  if (day === dateStr(TODAY)) {
+    S.meals[type].splice(idx, 1);
+  } else {
+    if (S.mealHistory && S.mealHistory[day]) {
+      S.mealHistory[day][type].splice(idx, 1);
+    }
+  }
+  save();
+  openMealModal(day, type, { stopPropagation: () => {} });
+  renderMealCal();
+}
+
+function closeMealModal(e) {
+  if (!e || e.target === document.getElementById('mealModal'))
+    document.getElementById('mealModal').classList.remove('open');
+}
+
+/* ════════════════════════════
    WATER
 ════════════════════════════ */
 function changeWater(d) {
@@ -783,6 +1188,29 @@ function renderWater() {
   for (let i = 0; i < 12; i++)
     h += `<span class="drop ${i < S.water ? 'on' : ''}" onclick="changeWater(${i < S.water ? -1 : 1})">💧</span>`;
   document.getElementById('wDrops').innerHTML = h;
+  
+  renderWaterHistory();
+}
+
+function renderWaterHistory() {
+  if (!S.waterHistory) S.waterHistory = {};
+  
+  const hist = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(TODAY);
+    d.setDate(d.getDate() - i);
+    const ds = dateStr(d);
+    const val = (i === 0) ? S.water : (S.waterHistory[ds] || 0);
+    const dayName = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'][d.getDay()];
+    hist.push({ dayName, val });
+  }
+  
+  const el = document.getElementById('waterHistory');
+  el.innerHTML = hist.map(h =>
+    `<div class="water-history-day">
+      <div class="day-label">${h.dayName}</div>
+      <div class="day-value">${h.val}</div>
+    </div>`).join('');
 }
 
 /* ════════════════════════════
@@ -814,12 +1242,12 @@ const CATS = [
   { key:'sos', label:'Servizi',    icon:'🔧', cls:'chip-sos' },
   { key:'alt', label:'Altro',      icon:'📦', cls:'chip-alt' },
 ];
-let calWeekOffset = 0;  // 0 = current week
+let calWeekOffset = 0;
 let modalDay = null, modalCat = null;
 
 function getWeekStart(offset = 0) {
   const d = new Date(TODAY);
-  const dow = d.getDay() === 0 ? 6 : d.getDay() - 1; // Mon=0
+  const dow = d.getDay() === 0 ? 6 : d.getDay() - 1;
   d.setDate(d.getDate() - dow + offset * 7);
   return d;
 }
@@ -847,7 +1275,6 @@ function renderCal() {
 
   let html = '';
 
-  // Header row: corner + day headers
   html += `<div class="cal-head-cell" style="background:var(--s2)"></div>`;
   days.forEach((d, i) => {
     const ds = dateStr(d);
@@ -858,7 +1285,6 @@ function renderCal() {
     </div>`;
   });
 
-  // Category rows
   CATS.forEach(cat => {
     html += `<div class="cal-cat-cell">
       <span class="cat-icon">${cat.icon}</span>
@@ -890,7 +1316,6 @@ function openModal(day, cat, e) {
   const catObj = CATS.find(c => c.key === cat);
   document.getElementById('modalTitle').textContent =
     `${catObj.icon} ${catObj.label} — ${d.toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'})}`;
-  // pills
   document.getElementById('catPills').innerHTML = CATS.map(c =>
     `<button class="cat-pill ${c.key} ${c.key===cat ? 'sel '+c.key : ''}" onclick="selectModalCat('${c.key}',this)">
       ${c.icon} ${c.label}
@@ -987,8 +1412,20 @@ function nowTime() {
 }
 
 /* ════════════════════════════
-   KEYBOARD
+   INIT & KEYBOARD
 ════════════════════════════ */
+function initApp() {
+  checkAndReset();
+  initHeader();
+  renderMeals();
+  renderMealCal();
+  renderWater();
+  renderGrids();
+  renderCal();
+  renderExpenses();
+  scheduleReset();
+}
+
 document.addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
   const id = document.activeElement?.id;
@@ -997,24 +1434,10 @@ document.addEventListener('keydown', e => {
   else if (id === 'in-cen') addMeal('cen');
   else if (id === 'eDesc' || id === 'eAmt') addExpense();
   else if (id === 'taskText') confirmTask();
+  else if (id === 'mealInputText') confirmMealModal();
 });
 
-/* ════════════════════════════
-   SERVICE WORKER
-════════════════════════════ */
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').catch(() => {});
-}
-
-/* ════════════════════════════
-   INIT
-════════════════════════════ */
-initHeader();
-renderMeals();
-renderWater();
-renderGrids();
-renderCal();
-renderExpenses();
+document.addEventListener('DOMContentLoaded', initApp);
 </script>
 </body>
 </html>
