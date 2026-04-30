@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a0b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Giornata">
+<link rel="manifest" href="manifest.json">
+<title>La Mia Giornata</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:        #08080a;
+  --ink-1:      #0f0f12;
+  --ink-2:      #161619;
+  --ink-3:      #1e1e23;
+  --ink-4:      #26262d;
+  --ink-5:      #2e2e37;
+  --gold:       #c9a86c;
+  --gold-lt:    #e2c98a;
+  --gold-dk:    #9a7c48;
+  --gold-glow:  rgba(201,168,108,0.12);
+  --velvet:     #8b2035;
+  --velvet-lt:  #c04060;
+  --velvet-glow:rgba(139,32,53,0.18);
+  --teal:       #5fa88a;
+  --blue:       #6a8ab0;
+  --border:     rgba(201,168,108,0.1);
+  --border-lt:  rgba(201,168,108,0.2);
+  --text:       #f0ece4;
+  --text-2:     #9a9080;
+  --text-3:     #504840;
+  --sat: env(safe-area-inset-top,0px);
+  --sab: env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{
+  font-family:'Jost',sans-serif;
+  background:var(--ink);
+  color:var(--text);
+  font-size:14px;
+  display:flex;flex-direction:column;
+  background-image:
+    radial-gradient(ellipse 60% 40% at 15% 5%, rgba(201,168,108,0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 60% at 85% 95%, rgba(139,32,53,0.06) 0%, transparent 70%);
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(108deg,transparent 28%,rgba(255,255,255,0.018) 29%,rgba(255,255,255,0.018) 29.6%,transparent 30%),
+    linear-gradient(72deg, transparent 52%,rgba(255,255,255,0.012) 53%,rgba(255,255,255,0.012) 53.9%,transparent 54%),
+    linear-gradient(118deg,transparent 68%,rgba(201,168,108,0.025) 69%,rgba(201,168,108,0.025) 69.5%,transparent 70%);
+}
+
+/* ── APP SHELL ── */
+.app{display:flex;flex-direction:column;height:100%;position:relative;z-index:1;}
+
+/* ── HEADER ── */
+.header{
+  flex-shrink:0;
+  padding:calc(var(--sat) + 14px) 18px 12px;
+  display:flex;align-items:flex-end;justify-content:space-between;
+  border-bottom:1px solid var(--border-lt);
+  background:linear-gradient(180deg,rgba(15,15,18,0.98) 0%,rgba(8,8,10,0.9) 100%);
+  backdrop-filter:blur(10px);
+}
+.h-logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:24px;font-weight:500;
+  letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--gold-lt);line-height:1;
+}
+.h-logo em{color:var(--velvet-lt);font-style:normal;}
+.h-date{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-3);margin-top:5px;font-weight:300;}
+.week-badge{
+  font-size:8px;letter-spacing:2px;text-transform:uppercase;font-weight:600;
+  color:var(--ink);background:linear-gradient(135deg,var(--gold-lt),var(--gold-dk));
+  padding:5px 12px;border-radius:2px;
+  box-shadow:0 2px 12px rgba(201,168,108,0.25);
+}
+
+/* ── NAV ── */
+.nav{
+  flex-shrink:0;display:flex;
+  background:var(--ink-1);
+  border-bottom:1px solid var(--border);
+}
+.nav-btn{
+  flex:1;background:none;border:none;color:var(--text-3);
+  font-family:'Jost',sans-serif;font-size:9px;font-weight:500;
+  letter-spacing:1.5px;text-transform:uppercase;
+  padding:10px 4px 8px;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  cursor:pointer;transition:color 0.2s;position:relative;
+}
+.nav-icon{font-size:18px;}
+.nav-btn.active{color:var(--gold);}
+.nav-btn.active::after{
+  content:'';position:absolute;bottom:0;left:20%;right:20%;
+  height:1.5px;background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+
+/* ── PAGES ── */
+.pages{flex:1;overflow:hidden;position:relative;}
+.page{
+  position:absolute;inset:0;
+  overflow-y:auto;overflow-x:hidden;
+  display:none;-webkit-overflow-scrolling:touch;
+  padding-bottom:calc(var(--sab) + 10px);
+}
+.page.active{display:block;}
+
+/* ══════════════════════════════════════
+   WEEKLY GRID
+══════════════════════════════════════ */
+.weekly-page{padding:12px;}
+
+.wk-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:12px;padding:0 2px;
+}
+.wk-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:15px;font-weight:500;color:var(--gold);letter-spacing:1px;
+}
+.wk-arrow{
+  width:30px;height:30px;border-radius:50%;
+  border:1px solid var(--border-lt);background:var(--ink-2);
+  color:var(--gold);font-size:15px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:background 0.15s;
+}
+.wk-arrow:active{background:var(--ink-4);}
+
+/* Horizontal scroll wrapper */
+.grid-wrap{overflow-x:auto;margin:0 -12px;padding:0 12px;-webkit-overflow-scrolling:touch;}
+
+.main-grid{
+  display:grid;
+  grid-template-columns:100px repeat(7,minmax(42px,1fr));
+  min-width:430px;
+  border:1px solid var(--border-lt);
+  border-radius:8px;overflow:hidden;
+  background:var(--ink-2);
+  box-shadow:0 8px 40px rgba(0,0,0,0.7),inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+/* Header row */
+.g-corner{
+  background:var(--ink-3);
+  border-right:1px solid var(--border-lt);
+  border-bottom:1px solid var(--border-lt);
+  padding:8px 10px;
+  display:flex;align-items:center;
+}
+.g-corner-txt{
+  font-family:'Cormorant Garamond',serif;
+  font-size:11px;font-weight:600;
+  color:var(--gold-dk);letter-spacing:1.5px;text-transform:uppercase;
+}
+.g-day{
+  background:var(--ink-3);
+  border-right:1px solid var(--border);
+  border-bottom:1px solid var(--border-lt);
+  text-align:center;padding:6px 2px;
+  font-size:7.5px;font-weight:600;
+  letter-spacing:1.5px;text-transform:uppercase;color:var(--text-3);
+}
+.g-day:last-child{border-right:none;}
+.g-day.tod{color:var(--gold);}
+.g-day .dn{display:block;font-size:14px;font-weight:400;margin-top:2px;color:var(--text-2);}
+.g-day.tod .dn{color:var(--gold-lt);font-weight:600;}
+
+/* Gold separator */
+.g-sep{
+  grid-column:1/-1;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(201,168,108,0.35),transparent);
+}
+
+/* Row label */
+.g-lbl{
+  background:var(--ink-3);
+  border-right:1px solid var(--border-lt);
+  border-bottom:1px solid var(--border);
+  padding:0 8px;
+  display:flex;align-items:center;gap:7px;
+  min-height:48px;
+}
+.g-lbl-ic{font-size:13px;flex-shrink:0;}
+.g-lbl-tx{
+  font-size:8.5px;font-weight:600;
+  letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--text-2);line-height:1.2;
+}
+
+/* MEAL cells */
+.g-meal{
+  border-right:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  padding:4px;min-height:48px;
+  cursor:pointer;position:relative;
+  transition:background 0.15s;
+}
+.g-meal:last-child{border-right:none;}
+.g-meal:hover{background:var(--gold-glow);}
+.g-meal.tod{background:rgba(201,168,108,0.035);}
+.meal-chip{
+  font-size:9px;padding:3px 5px;border-radius:3px;margin-bottom:2px;
+  line-height:1.3;color:var(--gold-lt);background:rgba(201,168,108,0.1);
+  display:flex;align-items:flex-start;gap:2px;word-break:break-word;
+  border-left:1.5px solid var(--gold-dk);
+}
+.chip-del{
+  margin-left:auto;background:none;border:none;
+  color:var(--gold-dk);font-size:9px;cursor:pointer;
+  opacity:0;flex-shrink:0;padding:0;
+}
+.meal-chip:hover .chip-del{opacity:1;}
+.cell-plus{
+  color:var(--text-3);font-size:16px;text-align:center;
+  opacity:0;transition:opacity 0.15s;line-height:1;
+}
+.g-meal:hover .cell-plus{opacity:1;}
+
+/* CHECK cells */
+.g-chk{
+  border-right:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  min-height:48px;cursor:pointer;
+  transition:background 0.15s;
+}
+.g-chk:last-child{border-right:none;}
+.g-chk:hover{background:var(--gold-glow);}
+.g-chk.tod{background:rgba(201,168,108,0.035);}
+
+.ring{
+  width:22px;height:22px;border-radius:50%;
+  border:1.5px solid var(--ink-5);
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.22s ease;font-size:11px;
+}
+.g-chk.on-shower  .ring{border-color:var(--teal);  background:rgba(95,168,138,0.18);color:var(--teal);}
+.g-chk.on-shampoo .ring{border-color:var(--gold);  background:var(--gold-glow);color:var(--gold);}
+.g-chk.on-gym     .ring{border-color:var(--velvet-lt);background:var(--velvet-glow);color:var(--velvet-lt);}
+.g-chk.on-lav     .ring{border-color:var(--blue);  background:rgba(106,138,176,0.15);color:var(--blue);}
+.g-chk.on-pul     .ring{border-color:var(--gold-dk);background:rgba(154,124,72,0.15);color:var(--gold-dk);}
+
+/* Last row — no bottom border */
+.no-bb{border-bottom:none !important;}
+
+/* ══════════════════════════════════════
+   ACQUA
+══════════════════════════════════════ */
+.water-page{padding:24px 18px;}
+.w-hero{text-align:center;margin-bottom:24px;}
+.w-num{
+  font-family:'Cormorant Garamond',serif;
+  font-size:96px;font-weight:400;
+  color:var(--gold-lt);line-height:1;display:block;
+  text-shadow:0 0 60px rgba(201,168,108,0.2);
+}
+.w-unit{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-3);margin-top:6px;}
+.w-bar-wrap{margin:20px auto 0;max-width:280px;}
+.w-bar-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--text-3);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.w-bar-track{height:3px;background:var(--ink-4);border-radius:2px;overflow:hidden;}
+.w-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gold-dk),var(--gold-lt));transition:width 0.5s ease;}
+.w-drops{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:28px auto;max-width:300px;}
+.drop{font-size:28px;opacity:0.15;cursor:pointer;transition:opacity 0.25s,transform 0.18s;filter:grayscale(0.9);}
+.drop.on{opacity:1;filter:none;transform:scale(1.1);}
+.w-btns{display:flex;gap:20px;justify-content:center;}
+.wbtn{
+  width:58px;height:58px;border-radius:50%;border:none;
+  font-size:26px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Jost',sans-serif;transition:transform 0.1s;
+}
+.wbtn:active{transform:scale(0.88);}
+.wbtn.plus{background:linear-gradient(135deg,var(--gold-lt),var(--gold-dk));color:var(--ink);box-shadow:0 4px 20px rgba(201,168,108,0.3);}
+.wbtn.minus{background:var(--ink-3);border:1px solid var(--border-lt);color:var(--text-2);}
+
+/* ══════════════════════════════════════
+   SPESE
+══════════════════════════════════════ */
+.spese-page{padding:14px;}
+.s-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.s-box{
+  background:var(--ink-2);border:1px solid var(--border);border-radius:6px;
+  padding:12px 6px;text-align:center;position:relative;overflow:hidden;
+}
+.s-box::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+.s-val{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:500;color:var(--gold-lt);}
+.s-lbl{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-3);margin-top:2px;}
+
+.add-card{
+  background:var(--ink-2);border:1px solid var(--border);border-radius:8px;
+  padding:14px;margin-bottom:12px;
+}
+.add-ttl{
+  font-size:8px;font-weight:600;letter-spacing:2px;text-transform:uppercase;
+  color:var(--text-3);margin-bottom:10px;
+  display:flex;align-items:center;gap:8px;
+}
+.add-ttl::before,.add-ttl::after{content:'';flex:1;height:1px;background:var(--border);}
+
+.field{
+  background:var(--ink-3);border:1px solid var(--border);border-radius:5px;
+  padding:10px 12px;color:var(--text);font-family:'Jost',sans-serif;
+  font-size:13px;width:100%;outline:none;transition:border-color 0.2s;font-weight:300;
+}
+.field:focus{border-color:var(--gold);}
+.field::placeholder{color:var(--text-3);}
+.field option{background:#1e1e23;}
+.frow{display:flex;gap:8px;margin-top:8px;}
+.btn-gold{
+  background:linear-gradient(135deg,var(--gold-lt),var(--gold-dk));color:var(--ink);
+  border:none;border-radius:5px;padding:10px 18px;
+  font-family:'Jost',sans-serif;font-weight:600;font-size:11px;
+  letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;white-space:nowrap;
+  transition:opacity 0.15s;
+}
+.btn-gold:active{opacity:0.8;}
+
+.exp-list{background:var(--ink-2);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.exp-item{
+  display:flex;align-items:center;gap:10px;
+  padding:11px 14px;border-bottom:1px solid var(--border);
+  transition:background 0.15s;
+}
+.exp-item:last-child{border-bottom:none;}
+.exp-item:hover{background:var(--gold-glow);}
+.exp-ico{
+  width:36px;height:36px;border-radius:6px;
+  background:var(--ink-4);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;
+}
+.exp-meta{flex:1;min-width:0;}
+.exp-desc{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.exp-sub{font-size:9px;color:var(--text-3);letter-spacing:0.5px;text-transform:uppercase;margin-top:2px;}
+.exp-amt{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500;color:var(--velvet-lt);flex-shrink:0;}
+.del-btn{background:none;border:none;color:var(--text-3);font-size:14px;cursor:pointer;padding:4px;transition:color 0.15s;}
+.del-btn:hover{color:var(--velvet-lt);}
+.empty{padding:28px;text-align:center;color:var(--text-3);font-size:11px;letter-spacing:1px;}
+
+/* ══════════════════════════════════════
+   MODAL
+══════════════════════════════════════ */
+.overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:300;
+  display:none;align-items:flex-end;justify-content:center;
+  backdrop-filter:blur(6px);
+}
+.overlay.open{display:flex;}
+.modal{
+  background:var(--ink-2);
+  border:1px solid var(--border-lt);border-bottom:none;border-radius:18px 18px 0 0;
+  padding:16px 18px calc(30px + var(--sab));
+  width:100%;max-width:500px;
+  box-shadow:0 -12px 60px rgba(0,0,0,0.7),0 0 0 1px rgba(201,168,108,0.08);
+}
+.modal-handle{width:32px;height:3px;background:var(--ink-5);border-radius:2px;margin:0 auto 16px;}
+.modal-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:19px;font-weight:500;color:var(--gold);
+  margin-bottom:12px;letter-spacing:0.5px;
+}
+.gold-line{height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin-bottom:14px;opacity:0.35;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header class="header">
+  <div>
+    <div class="h-logo">La Mia <em>Giornata</em></div>
+    <div class="h-date" id="hDate"></div>
+  </div>
+  <div class="week-badge" id="hWeek"></div>
+</header>
+
+<nav class="nav">
+  <button class="nav-btn active" data-page="weekly" onclick="showPage(this)">
+    <span class="nav-icon">📅</span><span>Settimana</span>
+  </button>
+  <button class="nav-btn" data-page="water" onclick="showPage(this)">
+    <span class="nav-icon">💧</span><span>Acqua</span>
+  </button>
+  <button class="nav-btn" data-page="spese" onclick="showPage(this)">
+    <span class="nav-icon">💸</span><span>Spese</span>
+  </button>
+</nav>
+
+<div class="pages">
+
+  <!-- WEEKLY -->
+  <div class="page active weekly-page" id="page-weekly">
+    <div class="wk-nav">
+      <button class="wk-arrow" onclick="changeWeek(-1)">‹</button>
+      <div class="wk-title" id="wkTitle"></div>
+      <button class="wk-arrow" onclick="changeWeek(1)">›</button>
+    </div>
+    <div class="grid-wrap">
+      <div class="main-grid" id="mainGrid"></div>
+    </div>
+  </div>
+
+  <!-- ACQUA -->
+  <div class="page water-page" id="page-water">
+    <div class="w-hero">
+      <span class="w-num" id="wNum">0</span>
+      <div class="w-unit">bicchieri oggi</div>
+      <div class="w-bar-wrap">
+        <div class="w-bar-labels"><span>0</span><span id="wPct">0%</span><span>8</span></div>
+        <div class="w-bar-track"><div class="w-bar-fill" id="wFill" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div class="w-drops" id="wDrops"></div>
+    <div class="w-btns">
+      <button class="wbtn minus" onclick="changeWater(-1)">−</button>
+      <button class="wbtn plus"  onclick="changeWater(1)">+</button>
+    </div>
+  </div>
+
+  <!-- SPESE -->
+  <div class="page spese-page" id="page-spese">
+    <div class="s-summary">
+      <div class="s-box"><div class="s-val" id="stot">£0</div><div class="s-lbl">Totale</div></div>
+      <div class="s-box"><div class="s-val" id="smese">£0</div><div class="s-lbl">Mese</div></div>
+      <div class="s-box"><div class="s-val" id="ssett">£0</div><div class="s-lbl">Settimana</div></div>
+    </div>
+    <div class="add-card">
+      <div class="add-ttl">nuova spesa</div>
+      <input class="field" id="eDesc" placeholder="Descrizione  (es. Tesco, TfL…)" maxlength="60">
+      <div class="frow">
+        <input class="field" id="eAmt" type="number" placeholder="£ Importo" min="0" step="0.01">
+        <select class="field" id="eCat" style="flex:0 0 auto">
+          <option value="cibo">🛒 Cibo</option>
+          <option value="trasporti">🚇 Trasporti</option>
+          <option value="casa">🏠 Casa</option>
+          <option value="salute">💊 Salute</option>
+          <option value="svago">🎮 Svago</option>
+          <option value="vestiti">👕 Vestiti</option>
+          <option value="moto">🏍️ Moto</option>
+          <option value="altro">📦 Altro</option>
+        </select>
+      </div>
+      <div style="margin-top:10px">
+        <button class="btn-gold" style="width:100%" onclick="addExpense()">Aggiungi Spesa</button>
+      </div>
+    </div>
+    <div class="exp-list" id="expList"><div class="empty">Nessuna spesa registrata</div></div>
+  </div>
+
+</div>
+</div>
+
+<!-- MEAL MODAL -->
+<div class="overlay" id="mOverlay" onclick="closeMModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="mTitle"></div>
+    <div class="gold-line"></div>
+    <input class="field" id="mInput" placeholder="Es. yogurt e granola, pasta al pesto…" maxlength="80">
+    <div style="margin-top:10px">
+      <button class="btn-gold" style="width:100%" onclick="confirmMeal()">Aggiungi</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* STATE */
+const KEY='giornata_v3';
+let S=(()=>{try{return JSON.parse(localStorage.getItem(KEY))||def();}catch{return def();}})();
+function def(){return{water:0,meals:{},checks:{},expenses:[]};}
+function save(){localStorage.setItem(KEY,JSON.stringify(S));}
+
+/* DATES */
+const TODAY=new Date();TODAY.setHours(0,0,0,0);
+const TSTR=ds(TODAY);
+function ds(d){return d.toISOString().slice(0,10);}
+function addD(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
+let wkOff=0;
+function wkStart(off){
+  const d=new Date(TODAY);
+  const dow=d.getDay()===0?6:d.getDay()-1;
+  d.setDate(d.getDate()-dow+off*7);return d;
+}
+function changeWeek(dir){wkOff+=dir;renderGrid();}
+
+/* HEADER */
+function initHeader(){
+  document.getElementById('hDate').textContent=TODAY.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('hWeek').textContent='Sett. '+Math.ceil(TODAY.getDate()/7);
+}
+
+/* NAV */
+function showPage(btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+btn.dataset.page).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* GRID */
+const DS=['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
+const ROWS=[
+  {type:'meal',key:'col',label:'Colazione',icon:'☕'},
+  {type:'meal',key:'pra',label:'Pranzo',icon:'🍝'},
+  {type:'meal',key:'cen',label:'Cena',icon:'🍖'},
+  {type:'meal',key:'snk',label:'Snack',icon:'🍎'},
+  {type:'check',key:'shower', label:'Doccia',icon:'🚿',cls:'shower'},
+  {type:'check',key:'shampoo',label:'Shampoo',icon:'🧴',cls:'shampoo'},
+  {type:'check',key:'gym',    label:'Palestra',icon:'🏋️',cls:'gym'},
+  {type:'check',key:'lav',   label:'Lavanderia',icon:'👕',cls:'lav'},
+  {type:'check',key:'pul',   label:'Pulizie',icon:'🧹',cls:'pul'},
+];
+
+function renderGrid(){
+  const ws=wkStart(wkOff),we=addD(ws,6);
+  const fmt=d=>d.toLocaleDateString('it-IT',{day:'numeric',month:'short'});
+  document.getElementById('wkTitle').textContent=fmt(ws)+' – '+fmt(we);
+  const days=Array.from({length:7},(_,i)=>addD(ws,i));
+  let h='';
+
+  // Header
+  h+=`<div class="g-corner"><span class="g-corner-txt">↓ Giorno</span></div>`;
+  days.forEach((d,i)=>{
+    const isT=ds(d)===TSTR;
+    h+=`<div class="g-day ${isT?'tod':''}">${DS[i]}<span class="dn">${d.getDate()}</span></div>`;
+  });
+
+  let prevType=null;
+  ROWS.forEach((row,ri)=>{
+    const isLast=ri===ROWS.length-1;
+
+    // Gold separator between meals and checks
+    if(row.type==='check'&&prevType==='meal'){
+      h+=`<div class="g-sep"></div>`;
+    }
+    prevType=row.type;
+
+    h+=`<div class="g-lbl ${isLast?'no-bb':''}">
+      <span class="g-lbl-ic">${row.icon}</span>
+      <span class="g-lbl-tx">${row.label}</span>
+    </div>`;
+
+    days.forEach(d=>{
+      const dstr=ds(d);
+      const isT=dstr===TSTR;
+      if(row.type==='meal'){
+        const mk=dstr+'_'+row.key;
+        const its=S.meals[mk]||[];
+        h+=`<div class="g-meal ${isT?'tod':''} ${isLast?'no-bb':''}"
+          onclick="openMM('${dstr}','${row.key}','${row.label}',event)">`;
+        its.forEach((it,ii)=>{
+          h+=`<div class="meal-chip"><span>${it.v}</span><button class="chip-del" onclick="delMeal('${mk}',${ii},event)">✕</button></div>`;
+        });
+        h+=`<div class="cell-plus">＋</div></div>`;
+      } else {
+        const ck=dstr+'_'+row.key;
+        const on=S.checks[ck];
+        h+=`<div class="g-chk ${isT?'tod':''} ${on?'on-'+row.cls:''} ${isLast?'no-bb':''}"
+          onclick="toggleCheck('${ck}')">
+          <div class="ring">${on?'✓':''}</div>
+        </div>`;
+      }
+    });
+  });
+
+  document.getElementById('mainGrid').innerHTML=h;
+}
+
+/* MEAL MODAL */
+let pMK=null;
+function openMM(dstr,mkey,label,e){
+  e.stopPropagation();
+  pMK=dstr+'_'+mkey;
+  const d=new Date(dstr+'T00:00:00');
+  document.getElementById('mTitle').textContent=
+    label+' · '+d.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('mInput').value='';
+  document.getElementById('mOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('mInput').focus(),200);
+}
+function closeMModal(e){if(e.target===document.getElementById('mOverlay'))document.getElementById('mOverlay').classList.remove('open');}
+function confirmMeal(){
+  const v=document.getElementById('mInput').value.trim();
+  if(!v||!pMK)return;
+  if(!S.meals[pMK])S.meals[pMK]=[];
+  S.meals[pMK].push({v,t:nowT()});
+  document.getElementById('mOverlay').classList.remove('open');
+  save();renderGrid();
+}
+function delMeal(mk,idx,e){e.stopPropagation();S.meals[mk].splice(idx,1);save();renderGrid();}
+
+/* CHECKS */
+function toggleCheck(ck){S.checks[ck]=!S.checks[ck];save();renderGrid();}
+
+/* WATER */
+function changeWater(d){S.water=Math.max(0,Math.min(12,S.water+d));save();renderWater();}
+function renderWater(){
+  document.getElementById('wNum').textContent=S.water;
+  const pct=Math.min(100,Math.round(S.water/8*100));
+  document.getElementById('wFill').style.width=pct+'%';
+  document.getElementById('wPct').textContent=pct+'%';
+  let h='';for(let i=0;i<12;i++)h+=`<span class="drop ${i<S.water?'on':''}" onclick="changeWater(${i<S.water?-1:1})">💧</span>`;
+  document.getElementById('wDrops').innerHTML=h;
+}
+
+/* SPESE */
+const EI={cibo:'🛒',trasporti:'🚇',casa:'🏠',salute:'💊',svago:'🎮',vestiti:'👕',moto:'🏍️',altro:'📦'};
+const EN={cibo:'Cibo',trasporti:'Trasporti',casa:'Casa',salute:'Salute',svago:'Svago',vestiti:'Vestiti',moto:'Moto',altro:'Altro'};
+function addExpense(){
+  const desc=document.getElementById('eDesc').value.trim();
+  const amt=parseFloat(document.getElementById('eAmt').value);
+  const cat=document.getElementById('eCat').value;
+  if(!desc||isNaN(amt)||amt<=0)return;
+  S.expenses.unshift({id:Date.now(),desc,amount:amt,cat,date:TSTR});
+  document.getElementById('eDesc').value='';
+  document.getElementById('eAmt').value='';
+  save();renderExpenses();
+}
+function delExpense(id){S.expenses=S.expenses.filter(e=>e.id!==id);save();renderExpenses();}
+function renderExpenses(){
+  const ws=wkStart(0);
+  const ms=new Date(TODAY.getFullYear(),TODAY.getMonth(),1);
+  let tot=0,mese=0,sett=0;
+  S.expenses.forEach(e=>{
+    const d=new Date(e.date+'T00:00:00');
+    tot+=e.amount;if(d>=ms)mese+=e.amount;if(d>=ws)sett+=e.amount;
+  });
+  document.getElementById('stot').textContent='£'+tot.toFixed(2);
+  document.getElementById('smese').textContent='£'+mese.toFixed(2);
+  document.getElementById('ssett').textContent='£'+sett.toFixed(2);
+  const el=document.getElementById('expList');
+  if(!S.expenses.length){el.innerHTML='<div class="empty">Nessuna spesa ancora</div>';return;}
+  el.innerHTML=S.expenses.slice(0,50).map(e=>
+    `<div class="exp-item">
+      <div class="exp-ico">${EI[e.cat]||'📦'}</div>
+      <div class="exp-meta">
+        <div class="exp-desc">${e.desc}</div>
+        <div class="exp-sub">${EN[e.cat]||'Altro'} · ${new Date(e.date+'T00:00:00').toLocaleDateString('it-IT')}</div>
+      </div>
+      <div class="exp-amt">£${parseFloat(e.amount).toFixed(2)}</div>
+      <button class="del-btn" onclick="delExpense(${e.id})">✕</button>
+    </div>`).join('');
+}
+
+/* UTILS */
+function nowT(){return new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});}
+
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter')return;
+  const id=document.activeElement?.id;
+  if(id==='mInput')confirmMeal();
+  if(id==='eDesc'||id==='eAmt')addExpense();
+});
+
+if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+
+initHeader();renderGrid();renderWater();renderExpenses();
+</script>
+</body>
+</html>
